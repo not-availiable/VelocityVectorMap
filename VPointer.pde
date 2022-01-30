@@ -1,6 +1,8 @@
 public class VPointer
 {
   private float centerXPos, centerYPos, size;
+  private boolean isBuffer = true;
+  private boolean paintRed = false;
   
   public VPointer(float cXPos, float cYPos, float s)
   {
@@ -21,10 +23,18 @@ public class VPointer
   {
     rectMode(CENTER);
     rect(centerXPos, centerYPos, size, size);
+    isBuffer = false;
   }
   
-  public void drawPointer(float Length)
+  public float getXMagnitude(float Length) { return !isBuffer ? (mouseX - centerXPos) * (Length/width) : 0; }
+  public float getYMagnitude(float Length) { return !isBuffer ? (mouseY - centerYPos) * (Length/height) : 0; }
+  
+  //for testing purposes
+  public void drawPointerWithMouse(float Length)
   {
     line(centerXPos, centerYPos, centerXPos + (mouseX - centerXPos) * (Length/width), centerYPos + (mouseY - centerYPos) * (Length/height));
+    ellipse(centerXPos + (mouseX - centerXPos) * (Length/width), centerYPos + (mouseY - centerYPos) * (Length/height), 2, 2);
   }
+  
+  public void paintRed(boolean b) { paintRed = b; }
 }
