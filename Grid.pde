@@ -1,10 +1,14 @@
 public class Grid
 {
   private VPointer[][] cells;
+  
+  //the length of each pointer at it's maximum value
+  //also the magnitude of the acceleration (changing this means we'll have to change the constant on the acceleration)
   private float pointerLength = 15;
  
   public Grid(VPointer[][] c)
   {
+    //initalizes all non-border cells
     cells = c;
     for (int i = 0; i < cells.length; i++)
     {
@@ -19,6 +23,7 @@ public class Grid
   public void update()
   {
     //the double nested loop is necessary because of the layering of squares
+    //if we find the tiles unnesessary, we can make this one nested loop
     for (int i = 1; i < cells.length - 1; i++)
     {
       for (int j = 1; j < cells[i].length - 1; j++)
@@ -33,16 +38,6 @@ public class Grid
       {
         //adding buffer cells to not have out of index array errors
         if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].drawPointerWithMouse(pointerLength);
-      }
-    }
-    
-    //not good idea
-    for (int i = 1; i < cells.length - 1; i++)
-    {
-      for (int j = 1; j < cells[i].length - 1; j++)
-      {
-        //adding buffer cells to not have out of index array errors
-        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].paintRed(false);
       }
     }
   }
@@ -75,11 +70,6 @@ public class Grid
     float x2 = lerp(xMagnitude3, xMagnitude4, kX2);
     
     float kY = yInput - yIndex;
-    
-    cells[xIndex][yIndex].paintRed(true);
-    cells[xIndex+1][yIndex].paintRed(true);
-    cells[xIndex][yIndex+1].paintRed(true);
-    cells[xIndex+1][yIndex+1].paintRed(true);
     
     return lerp(x1, x2, kY);
   }

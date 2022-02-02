@@ -1,6 +1,8 @@
 Grid g;
 Plane p;
 
+//sets the number of tiles in the grid
+//NOTE: the current code only supports square grids thus the single resolution variable
 private int resolution = 25;
 
 void setup()

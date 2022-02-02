@@ -27,10 +27,12 @@ public class VPointer
     isBuffer = false;
   }
   
+  //everything below is for testing purposes and will not funciton / be useful in the final implementation
+  
+  //only want to get the magnitude if it is a non-buffer tile.
   public float getXMagnitude(float Length) { return !isBuffer ? (mouseX - centerXPos) * (Length/width) : 0; }
   public float getYMagnitude(float Length) { return !isBuffer ? (mouseY - centerYPos) * (Length/height) : 0; }
   
-  //for testing purposes
   public void drawPointerWithMouse(float Length)
   {
     line(centerXPos, centerYPos, centerXPos + (mouseX - centerXPos) * (Length/width), centerYPos + (mouseY - centerYPos) * (Length/height));
