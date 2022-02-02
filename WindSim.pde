@@ -1,7 +1,7 @@
 Grid g;
 Plane p;
 
-private int resolution = 35;
+private int resolution = 25;
 
 void setup()
 {

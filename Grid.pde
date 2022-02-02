@@ -24,7 +24,7 @@ public class Grid
       for (int j = 1; j < cells[i].length - 1; j++)
       {
         //adding buffer cells to not have out of index array errors
-        if (i != 0 || i != cells[i].length || i != 0 || i != cells[i].length) cells[i][j].update();
+        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].update();
       }
     }
     for (int i = 1; i < cells.length - 1; i++)
@@ -32,7 +32,17 @@ public class Grid
       for (int j = 1; j < cells[i].length - 1; j++)
       {
         //adding buffer cells to not have out of index array errors
-        if (i != 0 || i != cells[i].length || i != 0 || i != cells[i].length) cells[i][j].drawPointerWithMouse(pointerLength);
+        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].drawPointerWithMouse(pointerLength);
+      }
+    }
+    
+    //not good idea
+    for (int i = 1; i < cells.length - 1; i++)
+    {
+      for (int j = 1; j < cells[i].length - 1; j++)
+      {
+        //adding buffer cells to not have out of index array errors
+        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].paintRed(false);
       }
     }
   }
@@ -42,10 +52,14 @@ public class Grid
   { 
     float size = width/cells.length;
     
-    float xInput = posX / size;
+    float actualWidth = width + 2 * size;
+    
+    float actualSize = actualWidth / cells.length;
+    
+    float xInput = posX / actualSize;
     int xIndex = floor(xInput);
     
-    float yInput = posY / size;
+    float yInput = posY / actualSize;
     int yIndex = floor(yInput);
     
     float xMagnitude1 = cells[xIndex][yIndex].getXMagnitude(pointerLength);
@@ -61,7 +75,12 @@ public class Grid
     float x2 = lerp(xMagnitude3, xMagnitude4, kX2);
     
     float kY = yInput - yIndex;
-        
+    
+    cells[xIndex][yIndex].paintRed(true);
+    cells[xIndex+1][yIndex].paintRed(true);
+    cells[xIndex][yIndex+1].paintRed(true);
+    cells[xIndex+1][yIndex+1].paintRed(true);
+    
     return lerp(x1, x2, kY);
   }
   
@@ -70,10 +89,15 @@ public class Grid
   { 
     float size = width/cells.length;
     
-    float xInput = posX / size;
+    float actualWidth = width + 2 * size;
+    
+    float actualSize = actualWidth/size;
+    
+    float xInput = posX / actualSize;
     int xIndex = floor(xInput);
     
-    float yInput = posY / size;
+    
+    float yInput = posY/ actualSize;
     int yIndex = floor(yInput);
     
     float yMagnitude1 = cells[xIndex][yIndex].getYMagnitude(pointerLength);

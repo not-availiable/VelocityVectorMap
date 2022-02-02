@@ -22,6 +22,7 @@ public class VPointer
   public void update()
   {
     rectMode(CENTER);
+    fill(paintRed ? 0 : 255);
     rect(centerXPos, centerYPos, size, size);
     isBuffer = false;
   }
