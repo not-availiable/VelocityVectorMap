@@ -40,6 +40,17 @@ public class Grid
         if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].drawPointerWithMouse(pointerLength);
       }
     }
+    
+    //bad code ... again
+    
+    for (int i = 1; i < cells.length - 1; i++)
+    {
+      for (int j = 1; j < cells[i].length - 1; j++)
+      {
+        //adding buffer cells to not have out of index array errors
+        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].paintRed(false);
+      }
+    }
   }
   
   //gets an accurate representation of the xMagnitudes of the four nearest pointers to the player using linear interpolation
@@ -71,6 +82,17 @@ public class Grid
     
     float kY = yInput - yIndex;
     
+    cells[xIndex][yIndex].paintRed(true);
+    cells[xIndex+1][yIndex].paintRed(true);
+    cells[xIndex][yIndex+1].paintRed(true);
+    cells[xIndex+1][yIndex+1].paintRed(true);
+    
+    cells[xIndex+2][yIndex].paintRed(true);
+    cells[xIndex+2][yIndex+1].paintRed(true);
+    cells[xIndex+2][yIndex+2].paintRed(true);
+    cells[xIndex+1][yIndex+2].paintRed(true);
+    cells[xIndex][yIndex+2].paintRed(true);
+    
     return lerp(x1, x2, kY);
   }
   
@@ -81,7 +103,7 @@ public class Grid
     
     float actualWidth = width + 2 * size;
     
-    float actualSize = actualWidth/size;
+    float actualSize = actualWidth / cells.length;
     
     float xInput = posX / actualSize;
     int xIndex = floor(xInput);
