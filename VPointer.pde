@@ -1,6 +1,7 @@
 public class VPointer
 {
   private float centerXPos, centerYPos, size;
+  private float pointerXPos, pointerYPos, maxLength;
   private boolean isBuffer = true;
   private boolean paintRed = false;
   
@@ -9,17 +10,19 @@ public class VPointer
     centerXPos = cXPos;
     centerYPos = cYPos;
     size = s;
+    
+    pointerXPos = centerXPos;
+    pointerYPos = centerYPos;
   }
   
-  //don't know if we'll need this yet
-  /*
-  public void initalize()
+  //only gets called once
+  public void initalize(float Length)
   {
-    rect(centerXPos - size * .5, centerYPos - size * .5, centerXPos + size * .5, centerYPos + size * .5);
+    initalizePointerRandomly(Length);
+    generateSquare();
   }
-  */
   
-  public void update()
+  void generateSquare()
   {
     rectMode(CENTER);
     fill(paintRed ? 0 : 255);
@@ -27,11 +30,32 @@ public class VPointer
     isBuffer = false;
   }
   
+  void generatePointer()
+  {
+    line(centerXPos, centerYPos, pointerXPos, pointerYPos);
+    ellipse(pointerXPos, pointerYPos, 2, 2);
+  }
+  
+  public float getXMagnitude() { return !isBuffer ? pointerXPos - centerXPos : 0; }
+  public float getYMagnitude() { return !isBuffer ? pointerYPos - centerYPos : 0; }
+  
+  
   //everything below is for testing purposes and will not funciton / be useful in the final implementation
   
+  public void initalizePointerRandomly(float Length)
+  {
+    maxLength = Length;
+    
+    pointerXPos = centerXPos + (random(width) - centerXPos) * (maxLength/width);
+    pointerYPos = centerYPos + (random(height) - centerYPos) * (maxLength/height);
+    
+    line(centerXPos, centerYPos, pointerXPos, pointerYPos);
+    ellipse(pointerXPos, pointerYPos, 2, 2);
+  }
+  
   //only want to get the magnitude if it is a non-buffer tile.
-  public float getXMagnitude(float Length) { return !isBuffer ? (mouseX - centerXPos) * (Length/width) : 0; }
-  public float getYMagnitude(float Length) { return !isBuffer ? (mouseY - centerYPos) * (Length/height) : 0; }
+  public float getXMagnitudeWithMouse(float Length) { return !isBuffer ? (mouseX - centerXPos) * (Length/width) : 0; }
+  public float getYMagnitudeWithMouse(float Length) { return !isBuffer ? (mouseY - centerYPos) * (Length/height) : 0; }
   
   public void drawPointerWithMouse(float Length)
   {

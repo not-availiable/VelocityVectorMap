@@ -16,6 +16,7 @@ public class Grid
       {
         float size = width/(cells.length - 2);
         cells[i][j] = new VPointer((height/(cells.length-2)) * (i-1) + size/2, (width/(cells[i].length-2)) * (j-1) + size/2, size);
+        cells[i][j].initalizePointerRandomly(pointerLength);
       }
     }
   }
@@ -29,7 +30,7 @@ public class Grid
       for (int j = 1; j < cells[i].length - 1; j++)
       {
         //adding buffer cells to not have out of index array errors
-        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].update();
+        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].generateSquare();
       }
     }
     for (int i = 1; i < cells.length - 1; i++)
@@ -37,7 +38,8 @@ public class Grid
       for (int j = 1; j < cells[i].length - 1; j++)
       {
         //adding buffer cells to not have out of index array errors
-        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].drawPointerWithMouse(pointerLength);
+        //if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].drawPointerWithMouse(pointerLength);
+        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].generatePointer();
       }
     }
     
@@ -67,15 +69,19 @@ public class Grid
     
     float yInput = posY / actualSize;
     int yIndex = floor(yInput);
+
     
-    float xMagnitude1 = cells[xIndex][yIndex].getXMagnitude(pointerLength);
-    float xMagnitude2 = cells[xIndex][yIndex+1].getXMagnitude(pointerLength);
+    float xMagnitude1 = cells[xIndex][yIndex].getXMagnitude();
+    float xMagnitude2 = cells[xIndex][yIndex+1].getXMagnitude();
+    
     float kX1 = xInput - xIndex;
     
     float x1 = lerp(xMagnitude1, xMagnitude2, kX1);
     
-    float xMagnitude3 = cells[xIndex+1][yIndex].getXMagnitude(pointerLength);
-    float xMagnitude4 = cells[xIndex+1][yIndex+1].getXMagnitude(pointerLength);
+    
+    float xMagnitude3 = cells[xIndex+1][yIndex].getXMagnitude();
+    float xMagnitude4 = cells[xIndex+1][yIndex+1].getXMagnitude();
+    
     float kX2 = xInput - xIndex;
     
     float x2 = lerp(xMagnitude3, xMagnitude4, kX2);
@@ -86,12 +92,6 @@ public class Grid
     cells[xIndex+1][yIndex].paintRed(true);
     cells[xIndex][yIndex+1].paintRed(true);
     cells[xIndex+1][yIndex+1].paintRed(true);
-    
-    cells[xIndex+2][yIndex].paintRed(true);
-    cells[xIndex+2][yIndex+1].paintRed(true);
-    cells[xIndex+2][yIndex+2].paintRed(true);
-    cells[xIndex+1][yIndex+2].paintRed(true);
-    cells[xIndex][yIndex+2].paintRed(true);
     
     return lerp(x1, x2, kY);
   }
@@ -108,18 +108,21 @@ public class Grid
     float xInput = posX / actualSize;
     int xIndex = floor(xInput);
     
-    
     float yInput = posY/ actualSize;
     int yIndex = floor(yInput);
     
-    float yMagnitude1 = cells[xIndex][yIndex].getYMagnitude(pointerLength);
-    float yMagnitude2 = cells[xIndex][yIndex+1].getYMagnitude(pointerLength);
+    
+    float yMagnitude1 = cells[xIndex][yIndex].getYMagnitude();
+    float yMagnitude2 = cells[xIndex][yIndex+1].getYMagnitude();
+    
     float kY1 = xInput - xIndex;
     
     float y1 = lerp(yMagnitude1, yMagnitude2, kY1);
+ 
     
-    float yMagnitude3 = cells[xIndex+1][yIndex].getYMagnitude(pointerLength);
-    float yMagnitude4 = cells[xIndex+1][yIndex+1].getYMagnitude(pointerLength);
+    float yMagnitude3 = cells[xIndex+1][yIndex].getYMagnitude();
+    float yMagnitude4 = cells[xIndex+1][yIndex+1].getYMagnitude();
+    
     float kY2 = xInput - xIndex;
     
     float y2 = lerp(yMagnitude3, yMagnitude4, kY2);
