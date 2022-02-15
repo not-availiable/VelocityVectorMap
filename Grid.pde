@@ -1,10 +1,12 @@
 public class Grid
 {
-  private VPointer[][] cells;
+  public VPointer[][] cells;
+  
+  private float[][] vX = new float[resolution+2][resolution+2], vY = new float[resolution + 2][resolution+2], vX0 = new float[resolution + 2][resolution+2], vY0 = new float[resolution + 2][resolution+2];
   
   //the length of each pointer at it's maximum value
   //also the magnitude of the acceleration (changing this means we'll have to change the constant on the acceleration)
-  private float pointerLength = 15;
+  public float pointerLength = 15;
  
   public Grid(VPointer[][] c)
   {
@@ -16,7 +18,11 @@ public class Grid
       {
         float size = width/(cells.length - 2);
         cells[i][j] = new VPointer((height/(cells.length-2)) * (i-1) + size/2, (width/(cells[i].length-2)) * (j-1) + size/2, size);
-        cells[i][j].initalizePointerRandomly(pointerLength);
+        cells[i][j].initalize(pointerLength);
+        vX[i][j] = cells[i][j].getXMagnitude();
+        vY[i][j] = cells[i][j].getYMagnitude();
+        vX0 = vX;
+        vY0 = vY;
       }
     }
   }
@@ -136,4 +142,84 @@ public class Grid
   {
     return a + k * (b - a);
   }
-}
+  
+  
+  public float[][] getVx() { return vX; }
+  public float[][] getVy() { return vY; }
+  public float[][] getVx0() { return vX0; }
+  public float[][] getVy0() { return vY0; }
+  
+  private float getDeltaVelocity(int indexX, int indexY)
+  {
+    return (cells[indexX + 1][indexY].getXMagnitude() - cells[indexX - 1][indexY].getXMagnitude() + cells[indexX][indexY+1].getYMagnitude() - cells[indexX][indexY-1].getYMagnitude()) * .5;
+  }
+  
+  private float p(int indexX, int indexY)
+  {
+    return ((p(indexX - 1, indexY) + p(indexX + 1, indexY) + p(indexX, indexY - 1) + p(indexX, indexY + 1)) - cells[indexX][indexY].getDeltaVel()) * .25;
+  }
+  
+  void lin_solve(int b, float[][] x, float[][] x0, float a, float c) {
+  float cRecip = 1.0 / c;
+  for (int k = 0; k < iter; k++) {
+    for (int j = 1; j < resolution - 1; j++) {
+      for (int i = 1; i < resolution - 1; i++) {
+        x[i][j] =
+          (x0[i][j]
+          + a*(x[i+1][j]
+          +x[i-1][j]
+          +x[i][j+1]
+          +x[i][j-1]
+          )) * cRecip;
+        }
+      }
+     set_bnd(b, x);
+   }
+ }
+  
+  void project(float[][] velocX, float[][] velocY, float[][] p, float[][] div) {
+  for (int j = 1; j < resolution - 1; j++) {
+    for (int i = 1; i < resolution - 1; i++) {
+      div[i][j] = -0.5f*(
+        velocX[i+1][j]
+        -velocX[i-1][j]
+        +velocY[i][j+1]
+        -velocY[i][j-1]
+        )/resolution;
+      p[i][j] = 0;
+    }
+  }
+
+  set_bnd(0, div); 
+  set_bnd(0, p);
+  //lin_solve(0, p, div, 1, 4);
+
+  for (int j = 1; j < resolution - 1; j++) {
+    for (int i = 1; i < resolution - 1; i++) {
+      velocX[i][j] -= 0.5f * (p[i+1][j]
+        -p[i-1][j]) * resolution;
+      velocY[i][j] -= 0.5f * (p[i][j+1]
+        -p[i][j-1]) * resolution;
+    }
+  }
+  set_bnd(1, velocX);
+  set_bnd(2, velocY);
+ }
+
+
+ void set_bnd(int b, float[][] x) {
+    for (int i = 1; i < resolution - 1; i++) {
+      x[i][0] = b == 2 ? -x[i][1] : x[i][1];
+      x[i][resolution-1] = b == 2 ? -x[i][resolution-2] : x[i][resolution-2];
+    }
+    for (int j = 1; j < resolution - 1; j++) {
+      x[0][j] = b == 1 ? -x[1][j] : x[1][j];
+      x[resolution-1][j] = b == 1 ? -x[resolution-2][j] : x[resolution-2][j];
+    }
+  
+    x[0][0] = 0.5f * (x[1][0] + x[0][1]);
+    x[0][resolution-1] = 0.5f * (x[1][resolution-1] + x[0][resolution-2]);
+    x[resolution-1][0] = 0.5f * (x[resolution-2][0] + x[resolution-1][1]);
+    x[resolution-1][resolution-1] = 0.5f * (x[resolution-2][resolution-1] + x[resolution-1][resolution-2]);
+  }
+ }

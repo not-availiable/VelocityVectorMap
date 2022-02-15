@@ -5,6 +5,8 @@ public class VPointer
   private boolean isBuffer = true;
   private boolean paintRed = false;
   
+  private float deltaVel = 0;
+  
   public VPointer(float cXPos, float cYPos, float s)
   {
     centerXPos = cXPos;
@@ -18,8 +20,8 @@ public class VPointer
   //only gets called once
   public void initalize(float Length)
   {
-    initalizePointerRandomly(Length);
     generateSquare();
+    initalizePointerRandomly(Length);
   }
   
   void generateSquare()
@@ -38,6 +40,24 @@ public class VPointer
   
   public float getXMagnitude() { return !isBuffer ? pointerXPos - centerXPos : 0; }
   public float getYMagnitude() { return !isBuffer ? pointerYPos - centerYPos : 0; }
+  
+  public void setXMagnitude(float value) { pointerXPos = value + centerXPos; }
+  public void setYMagnitude(float value) { pointerYPos = value + centerYPos; }
+  
+  public void setDeltaVel(float dV) { deltaVel = dV; }
+  public float getDeltaVel() { return deltaVel; }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   //everything below is for testing purposes and will not funciton / be useful in the final implementation
