@@ -14,23 +14,34 @@ void setup()
   background(0);
   g.update();
   
+ 
+}
+
+void draw()
+{
+  delay(2000);
+  
+  background(0);
+  p.setAcceleratonX(g.sampleAccelerationsX(p.getXPos(), p.getYPos()) * .005);
+  p.setAccelerationY(g.sampleAccelerationsY(p.getXPos(), p.getYPos()) * .005);
+  g.update();
+  p.update();
+  
   g.project(g.getVx(), g.getVy(), g.getVx0(), g.getVy0());
-  g.project(g.getVx0(), g.getVy0(), g.getVx(), g.getVy());
+  g.project(g.getVy(), g.getVx(), g.getVy0(), g.getVx0());
+  
+  //g.project(g.getVx0(), g.getVy0(), g.getVx(), g.getVy());
+  
+  //g.project(g.getVy0(), g.getVx0(), g.getVy0(), g.getVx0());
+  //g.project(g.getVx0(), g.getVy0(), g.getVx(), g.getVy());
   
   for (int i = 0; i < g.cells.length; i++)
   {
     for (int j = 0; j < g.cells.length; j++)
     {
-      g.cells[i][j].setXMagnitude(g.getVx()[i][j]);
-      g.cells[i][j].setYMagnitude(g.getVy()[i][j]);
+      g.cells[i][j].setXMagnitude(g.getVx0()[i][j] - g.getVx()[i][j] * 100);
+      g.cells[i][j].setYMagnitude(g.getVy0()[i][j] - g.getVy()[i][j] * 100);
     }
   }
   g.update();
-}
-
-void draw()
-{
-  p.setAcceleratonX(g.sampleAccelerationsX(p.getXPos(), p.getYPos()) * .005);
-  p.setAccelerationY(g.sampleAccelerationsY(p.getXPos(), p.getYPos()) * .005);
-  p.update();
 }

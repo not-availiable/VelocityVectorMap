@@ -176,34 +176,34 @@ public class Grid
      set_bnd(b, x);
    }
  }
-  
+
   void project(float[][] velocX, float[][] velocY, float[][] p, float[][] div) {
-  for (int j = 1; j < resolution - 1; j++) {
-    for (int i = 1; i < resolution - 1; i++) {
+  for (int j = 1; j < resolution + 1; j++) {
+    for (int i = 1; i < resolution + 1; i++) {
       div[i][j] = -0.5f*(
         velocX[i+1][j]
         -velocX[i-1][j]
         +velocY[i][j+1]
         -velocY[i][j-1]
         )/resolution;
-      p[i][j] = 0;
+      //p[i][j] = 0;
     }
   }
 
-  set_bnd(0, div); 
-  set_bnd(0, p);
+  //set_bnd(0, div); 
+  //set_bnd(0, p);
   //lin_solve(0, p, div, 1, 4);
-
-  for (int j = 1; j < resolution - 1; j++) {
+ 
+  /*for (int j = 1; j < resolution - 1; j++) {
     for (int i = 1; i < resolution - 1; i++) {
       velocX[i][j] -= 0.5f * (p[i+1][j]
         -p[i-1][j]) * resolution;
       velocY[i][j] -= 0.5f * (p[i][j+1]
         -p[i][j-1]) * resolution;
     }
-  }
-  set_bnd(1, velocX);
-  set_bnd(2, velocY);
+  }*/
+  //set_bnd(1, velocX);
+  //set_bnd(2, velocY);
  }
 
 
