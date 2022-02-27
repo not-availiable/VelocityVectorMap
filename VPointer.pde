@@ -5,7 +5,11 @@ public class VPointer
   private boolean isBuffer = true;
   private boolean paintRed = false;
   
-  private float deltaVel = 0;
+  private float windDecay = .5;
+  
+  private float mouseX0 = mouseX;
+  private float mouseY0 = mouseY;
+  private float magConst = 2;
   
   public VPointer(float cXPos, float cYPos, float s)
   {
@@ -21,7 +25,7 @@ public class VPointer
   public void initalize(float Length)
   {
     generateSquare();
-    initalizePointerRandomly(Length);
+    //initalizePointerRandomly(Length);
   }
   
   void generateSquare()
@@ -34,19 +38,55 @@ public class VPointer
   
   void generatePointer()
   {
+    float magX = pointerXPos - centerXPos;
+    float magY = pointerYPos - centerYPos;
+    stroke(255 - (int)(255/(1 + Math.pow(exp(1.0), 4 + (-.5 * sqrt(magX * magX + magY * magY))))), (int)(255/(1 + Math.pow(exp(1.0), 4 + (-.5 * sqrt(magX * magX + magY * magY))))), 0);
+    fill(255 - (int)(255/(1 + Math.pow(exp(1.0), 4 + (-.5 * sqrt(magX * magX + magY * magY))))), (int)(255/(1 + Math.pow(exp(1.0), 4 + (-.5 * sqrt(magX * magX + magY * magY))))), 0);
     line(centerXPos, centerYPos, pointerXPos, pointerYPos);
     ellipse(pointerXPos, pointerYPos, 2, 2);
+    stroke(0);
+    
+    decayVelocity();
+    addVelocityBrush();
+  }
+  
+  void decayVelocity()
+  {
+    setXMagnitude(getXMagnitude() * windDecay);
+    setYMagnitude(getYMagnitude() * windDecay);
   }
   
   public float getXMagnitude() { return !isBuffer ? pointerXPos - centerXPos : 0; }
   public float getYMagnitude() { return !isBuffer ? pointerYPos - centerYPos : 0; }
+  public float getCenterXPos() { return centerXPos; }
+  public float getCenterYPos() { return centerYPos; }
   
   public void setXMagnitude(float value) { pointerXPos = value + centerXPos; }
   public void setYMagnitude(float value) { pointerYPos = value + centerYPos; }
-  
-  public void setDeltaVel(float dV) { deltaVel = dV; }
-  public float getDeltaVel() { return deltaVel; }
-  
+
+  public void addVelocityBrush()
+  {
+    if (mouseDown)
+    {
+      float r = min(dist(mouseX0, mouseY0, mouseX, mouseY), 100);
+      
+      
+      //distance between old mouse position and origin of vector
+      float v1 = dist(mouseX0, mouseY0, centerXPos, centerYPos);
+      
+      
+      if (r - v1 >= 0)
+      {
+        float mag = (r - v1) * magConst;
+        float theta = atan2((mouseY - mouseY0), (mouseX - mouseX0));
+        
+        setXMagnitude(mag * cos(theta));
+        setYMagnitude(mag * sin(theta));
+      }
+    }
+    mouseX0 = mouseX;
+    mouseY0 = mouseY;
+  }
   
   
   

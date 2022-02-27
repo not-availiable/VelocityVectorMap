@@ -24,6 +24,8 @@ public class Plane
     xPos += vX;
     yPos += vY;
     
+    fill(255);
+    stroke(0);
     ellipse(xPos, yPos, size/2, size/2); 
   }
   

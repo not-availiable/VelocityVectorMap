@@ -2,8 +2,6 @@ public class Grid
 {
   public VPointer[][] cells;
   
-  private float[][] vX = new float[resolution+2][resolution+2], vY = new float[resolution + 2][resolution+2], vX0 = new float[resolution + 2][resolution+2], vY0 = new float[resolution + 2][resolution+2];
-  
   //the length of each pointer at it's maximum value
   //also the magnitude of the acceleration (changing this means we'll have to change the constant on the acceleration)
   public float pointerLength = 15;
@@ -17,28 +15,18 @@ public class Grid
       for (int j = 0; j < cells[i].length; j++)
       {
         float size = width/(cells.length - 2);
-        cells[i][j] = new VPointer((height/(cells.length-2)) * (i-1) + size/2, (width/(cells[i].length-2)) * (j-1) + size/2, size);
+        cells[i][j] = new VPointer((height/(float)(cells.length-2)) * (float)(i-1) + (float)size/2, (width/(float)(cells[i].length-2)) * (float)(j-1) + (float)size/2, size);
         cells[i][j].initalize(pointerLength);
-        vX[i][j] = cells[i][j].getXMagnitude();
-        vY[i][j] = cells[i][j].getYMagnitude();
-        vX0 = vX;
-        vY0 = vY;
+        //vX[i][j] = cells[i][j].getXMagnitude();
+        //vY[i][j] = cells[i][j].getYMagnitude();
+        //vX0 = vX;
+        //vY0 = vY;
       }
     }
   }
   
   public void update()
   {
-    //the double nested loop is necessary because of the layering of squares
-    //if we find the tiles unnesessary, we can make this one nested loop
-    for (int i = 1; i < cells.length - 1; i++)
-    {
-      for (int j = 1; j < cells[i].length - 1; j++)
-      {
-        //adding buffer cells to not have out of index array errors
-        if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].generateSquare();
-      }
-    }
     for (int i = 1; i < cells.length - 1; i++)
     {
       for (int j = 1; j < cells[i].length - 1; j++)
@@ -49,9 +37,11 @@ public class Grid
       }
     }
     
+    advect();
+    
     //bad code ... again
     
-    for (int i = 1; i < cells.length - 1; i++)
+    /*for (int i = 1; i < cells.length - 1; i++)
     {
       for (int j = 1; j < cells[i].length - 1; j++)
       {
@@ -59,6 +49,7 @@ public class Grid
         if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].paintRed(false);
       }
     }
+    */
   }
   
   //gets an accurate representation of the xMagnitudes of the four nearest pointers to the player using linear interpolation
@@ -124,7 +115,6 @@ public class Grid
     float kY1 = xInput - xIndex;
     
     float y1 = lerp(yMagnitude1, yMagnitude2, kY1);
- 
     
     float yMagnitude3 = cells[xIndex+1][yIndex].getYMagnitude();
     float yMagnitude4 = cells[xIndex+1][yIndex+1].getYMagnitude();
@@ -143,83 +133,69 @@ public class Grid
     return a + k * (b - a);
   }
   
-  
-  public float[][] getVx() { return vX; }
-  public float[][] getVy() { return vY; }
-  public float[][] getVx0() { return vX0; }
-  public float[][] getVy0() { return vY0; }
-  
-  private float getDeltaVelocity(int indexX, int indexY)
+  private void advect()
   {
-    return (cells[indexX + 1][indexY].getXMagnitude() - cells[indexX - 1][indexY].getXMagnitude() + cells[indexX][indexY+1].getYMagnitude() - cells[indexX][indexY-1].getYMagnitude()) * .5;
-  }
-  
-  private float p(int indexX, int indexY)
-  {
-    return ((p(indexX - 1, indexY) + p(indexX + 1, indexY) + p(indexX, indexY - 1) + p(indexX, indexY + 1)) - cells[indexX][indexY].getDeltaVel()) * .25;
-  }
-  
-  void lin_solve(int b, float[][] x, float[][] x0, float a, float c) {
-  float cRecip = 1.0 / c;
-  for (int k = 0; k < iter; k++) {
-    for (int j = 1; j < resolution - 1; j++) {
-      for (int i = 1; i < resolution - 1; i++) {
-        x[i][j] =
-          (x0[i][j]
-          + a*(x[i+1][j]
-          +x[i-1][j]
-          +x[i][j+1]
-          +x[i][j-1]
-          )) * cRecip;
+    float[][] magXStorage = new float[cells.length][cells.length];
+    float[][] magYStorage = new float[cells.length][cells.length];
+    
+    for (int i = 1; i < cells.length - 1; i++)
+    {
+      for (int j = 1; j < cells[i].length - 1; j++)
+      {
+        float targetX = cells[i][j].getCenterXPos() - cells[i][j].getXMagnitude();
+        float targetY = cells[i][j].getCenterYPos() - cells[i][j].getYMagnitude();
+        
+        //the problem is that the magnitude is always negative
+        //need to fix to remove top left bias
+        
+        if (abs(cells[i][j].getXMagnitude()) > 1) 
+                println(targetX, cells[i][j].getCenterXPos(), cells[i][j].getXMagnitude());
+        if (!(targetX <= 0 || targetY <= 0 || targetX >= width || targetY >= width))
+        {
+          float size = width/cells.length;
+        
+          float actualWidth = width + 2 * size;
+          
+          float actualSize = actualWidth / cells.length;
+          
+          float xInput = targetX / actualSize;
+          int xIndex = floor(xInput);
+          
+          float yInput = targetY / actualSize;
+          int yIndex = floor(yInput);
+          
+          float xRemainder = xInput - xIndex;
+          float yRemainder = yInput - yIndex;
+          
+          float zX1 = lerp(cells[xIndex][yIndex].getXMagnitude(), cells[xIndex+1][yIndex].getXMagnitude(), xRemainder);
+          float zX2 = lerp(cells[xIndex][yIndex+1].getXMagnitude(), cells[xIndex+1][yIndex+1].getXMagnitude(), xRemainder);
+          
+          float zY1 = lerp(cells[xIndex][yIndex].getYMagnitude(), cells[xIndex+1][yIndex].getYMagnitude(), xRemainder);
+          float zY2 = lerp(cells[xIndex][yIndex+1].getYMagnitude(), cells[xIndex+1][yIndex+1].getYMagnitude(), xRemainder);
+          
+          magXStorage[xIndex][yIndex] = lerp(zX1, zX2, yRemainder);
+          magYStorage[xIndex][yIndex] = lerp(zY1, zY2, yRemainder);
         }
       }
-     set_bnd(b, x);
-   }
- }
-
-  void project(float[][] velocX, float[][] velocY, float[][] p, float[][] div) {
-  for (int j = 1; j < resolution + 1; j++) {
-    for (int i = 1; i < resolution + 1; i++) {
-      div[i][j] = -0.5f*(
-        velocX[i+1][j]
-        -velocX[i-1][j]
-        +velocY[i][j+1]
-        -velocY[i][j-1]
-        )/resolution;
-      //p[i][j] = 0;
+    }
+     
+    for (int i = 1; i < cells.length - 1; i++)
+    {
+       for (int j = 1; j < cells[i].length - 1; j++)
+       {
+          cells[i][j].setXMagnitude(cells[i][j].getXMagnitude() + magXStorage[i][j]);
+          cells[i][j].setYMagnitude(cells[i][j].getYMagnitude() + magYStorage[i][j]);
+       }
     }
   }
-
-  //set_bnd(0, div); 
-  //set_bnd(0, p);
-  //lin_solve(0, p, div, 1, 4);
- 
-  /*for (int j = 1; j < resolution - 1; j++) {
-    for (int i = 1; i < resolution - 1; i++) {
-      velocX[i][j] -= 0.5f * (p[i+1][j]
-        -p[i-1][j]) * resolution;
-      velocY[i][j] -= 0.5f * (p[i][j+1]
-        -p[i][j-1]) * resolution;
+  
+  /*for (int i = cells.length - 1; i > 1; i--)
+    {
+       for (int j = cells.length - 1; j > 1; j--)
+       {
+          cells[i][j].setXMagnitude(cells[i][j].getXMagnitude() + magXStorage[i][j]);
+          cells[i][j].setYMagnitude(cells[i][j].getYMagnitude() + magYStorage[i][j]);
+       }
     }
   }*/
-  //set_bnd(1, velocX);
-  //set_bnd(2, velocY);
- }
-
-
- void set_bnd(int b, float[][] x) {
-    for (int i = 1; i < resolution - 1; i++) {
-      x[i][0] = b == 2 ? -x[i][1] : x[i][1];
-      x[i][resolution-1] = b == 2 ? -x[i][resolution-2] : x[i][resolution-2];
-    }
-    for (int j = 1; j < resolution - 1; j++) {
-      x[0][j] = b == 1 ? -x[1][j] : x[1][j];
-      x[resolution-1][j] = b == 1 ? -x[resolution-2][j] : x[resolution-2][j];
-    }
-  
-    x[0][0] = 0.5f * (x[1][0] + x[0][1]);
-    x[0][resolution-1] = 0.5f * (x[1][resolution-1] + x[0][resolution-2]);
-    x[resolution-1][0] = 0.5f * (x[resolution-2][0] + x[resolution-1][1]);
-    x[resolution-1][resolution-1] = 0.5f * (x[resolution-2][resolution-1] + x[resolution-1][resolution-2]);
-  }
- }
+}
