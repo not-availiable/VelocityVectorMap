@@ -34,6 +34,7 @@ public class Grid
         //adding buffer cells to not have out of index array errors
         //if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].drawPointerWithMouse(pointerLength);
         if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].generatePointer();
+        //if (i != 0 || i != cells.length || j != 0 || j != cells.length) cells[i][j].generateSquare();
       }
     }
     
@@ -133,6 +134,8 @@ public class Grid
     return a + k * (b - a);
   }
   
+  int num = 0;
+  int num2 = 0;
   private void advect()
   {
     float[][] magXStorage = new float[cells.length][cells.length];
@@ -145,18 +148,23 @@ public class Grid
         float targetX = cells[i][j].getCenterXPos() - cells[i][j].getXMagnitude();
         float targetY = cells[i][j].getCenterYPos() - cells[i][j].getYMagnitude();
         
-        //the problem is that the magnitude is always negative
-        //need to fix to remove top left bias
+        //println(targetX);
         
-        if (abs(cells[i][j].getXMagnitude()) > 1) 
-                println(targetX, cells[i][j].getCenterXPos(), cells[i][j].getXMagnitude());
-        if (!(targetX <= 0 || targetY <= 0 || targetX >= width || targetY >= width))
+        if (!(targetX < 0 || targetY < 0 || targetX > width || targetY > width))
         {
-          float size = width/cells.length;
-        
+          float size = width / cells.length;
+          
           float actualWidth = width + 2 * size;
           
           float actualSize = actualWidth / cells.length;
+          
+          println("b:" + cells[1][1].getCenterXPos());
+          println("a:" + actualSize);
+          println(cells[1][1].getCenterXPos() / actualSize);
+          
+          ellipse(14.211538, 14.211538, 10, 10);
+          line(14.211538, 14.211538, 14.211538 + actualSize, 14.211538);
+          ellipse(14.211538 + 2 * actualSize, 14.211538, 10, 10);
           
           float xInput = targetX / actualSize;
           int xIndex = floor(xInput);
@@ -172,9 +180,21 @@ public class Grid
           
           float zY1 = lerp(cells[xIndex][yIndex].getYMagnitude(), cells[xIndex+1][yIndex].getYMagnitude(), xRemainder);
           float zY2 = lerp(cells[xIndex][yIndex+1].getYMagnitude(), cells[xIndex+1][yIndex+1].getYMagnitude(), xRemainder);
-          
+
           magXStorage[xIndex][yIndex] = lerp(zX1, zX2, yRemainder);
           magYStorage[xIndex][yIndex] = lerp(zY1, zY2, yRemainder);
+          
+          if (xIndex > j && yIndex > i) {
+            //cells[i][j].paintRed(true);
+            //println("please", num);
+            num++;
+          }
+          if (xIndex < j) {
+            //println("dont", num2);
+            //println(xIndex, j, yIndex, i);
+            cells[i][j].paintRed(true);
+            num2++;
+          }
         }
       }
     }
@@ -183,8 +203,15 @@ public class Grid
     {
        for (int j = 1; j < cells[i].length - 1; j++)
        {
+          //float a = cells[i][j].getXMagnitude();
+          //float b = cells[i][j].getYMagnitude();
+         
           cells[i][j].setXMagnitude(cells[i][j].getXMagnitude() + magXStorage[i][j]);
           cells[i][j].setYMagnitude(cells[i][j].getYMagnitude() + magYStorage[i][j]);
+
+          
+          //cells[i][j].setXMagnitude(magXStorage[i][j]);
+          //cells[i][j].setYMagnitude(magYStorage[i][j]);
        }
     }
   }
