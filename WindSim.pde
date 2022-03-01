@@ -3,7 +3,7 @@ Plane p;
 
 //sets the number of tiles in the grid
 //NOTE: the current code only supports square grids thus the single resolution variable
-static public final int resolution = 50;
+static public final int resolution = 40;
 static public boolean mouseDown = false;
 
 void setup()
@@ -19,9 +19,9 @@ void draw()
 { 
   background(255);
   g.update();
-  //p.setAcceleratonX(g.sampleAccelerationsX(p.getXPos(), p.getYPos()) * .005);
-  //p.setAccelerationY(g.sampleAccelerationsY(p.getXPos(), p.getYPos()) * .005);
-  //p.update();
+  p.setAcceleratonX(g.sampleAccelerationsX(p.getXPos(), p.getYPos()) * .005);
+  p.setAccelerationY(g.sampleAccelerationsY(p.getXPos(), p.getYPos()) * .005);
+  p.update();
 }
 
 void mousePressed()

@@ -5,8 +5,9 @@ public class VPointer
   private boolean isBuffer = true;
   private boolean paintRed = false;
   
-  private float windDecay = .53;
+  private float windDecay = .49;
   //private float windDecay = 1.2;
+  //private float windDecay = 1;
   
   private float mouseX0 = mouseX;
   private float mouseY0 = mouseY;

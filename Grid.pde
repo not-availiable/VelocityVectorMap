@@ -14,7 +14,7 @@ public class Grid
     {
       for (int j = 0; j < cells[i].length; j++)
       {
-        float size = width/(cells.length - 2);
+        float size = width/(float)(cells.length - 2);
         cells[i][j] = new VPointer((height/(float)(cells.length-2)) * (float)(i-1) + (float)size/2, (width/(float)(cells[i].length-2)) * (float)(j-1) + (float)size/2, size);
         cells[i][j].initalize(pointerLength);
         //vX[i][j] = cells[i][j].getXMagnitude();
@@ -56,7 +56,7 @@ public class Grid
   //gets an accurate representation of the xMagnitudes of the four nearest pointers to the player using linear interpolation
   public float sampleAccelerationsX(float posX, float posY)
   { 
-    float size = width/cells.length;
+    float size = width / (float) cells.length;
     
     float actualWidth = width + 2 * size;
     
@@ -95,9 +95,9 @@ public class Grid
   }
   
  //gets an accurate representation of the yMagnitudes of the four nearest pointers to the player using linear interpolation
-  public float sampleAccelerationsY(float posX, float posY)
+  public float sampleAccelerationsY (float posX, float posY)
   { 
-    float size = width/cells.length;
+    float size = width / (float) cells.length;
     
     float actualWidth = width + 2 * size;
     
@@ -108,7 +108,6 @@ public class Grid
     
     float yInput = posY/ actualSize;
     int yIndex = floor(yInput);
-    
     
     float yMagnitude1 = cells[xIndex][yIndex].getYMagnitude();
     float yMagnitude2 = cells[xIndex][yIndex+1].getYMagnitude();
@@ -141,30 +140,22 @@ public class Grid
     float[][] magXStorage = new float[cells.length][cells.length];
     float[][] magYStorage = new float[cells.length][cells.length];
     
-    for (int i = 1; i < cells.length - 1; i++)
+    for (int i = 2; i < cells.length - 1; i++)
     {
       for (int j = 1; j < cells[i].length - 1; j++)
       {
-        float targetX = cells[i][j].getCenterXPos() - cells[i][j].getXMagnitude();
-        float targetY = cells[i][j].getCenterYPos() - cells[i][j].getYMagnitude();
+        float targetX = cells[i][j].getCenterXPos() + cells[i][j].getXMagnitude();
+        float targetY = cells[i][j].getCenterYPos() + cells[i][j].getYMagnitude();
         
         //println(targetX);
         
         if (!(targetX < 0 || targetY < 0 || targetX > width || targetY > width))
         {
-          float size = width / cells.length;
+          float size = width / (float) cells.length;
           
           float actualWidth = width + 2 * size;
           
           float actualSize = actualWidth / cells.length;
-          
-          println("b:" + cells[1][1].getCenterXPos());
-          println("a:" + actualSize);
-          println(cells[1][1].getCenterXPos() / actualSize);
-          
-          ellipse(14.211538, 14.211538, 10, 10);
-          line(14.211538, 14.211538, 14.211538 + actualSize, 14.211538);
-          ellipse(14.211538 + 2 * actualSize, 14.211538, 10, 10);
           
           float xInput = targetX / actualSize;
           int xIndex = floor(xInput);
@@ -175,14 +166,49 @@ public class Grid
           float xRemainder = xInput - xIndex;
           float yRemainder = yInput - yIndex;
           
-          float zX1 = lerp(cells[xIndex][yIndex].getXMagnitude(), cells[xIndex+1][yIndex].getXMagnitude(), xRemainder);
-          float zX2 = lerp(cells[xIndex][yIndex+1].getXMagnitude(), cells[xIndex+1][yIndex+1].getXMagnitude(), xRemainder);
+          float zX1 = lerp(cells[xIndex][yIndex].getXMagnitude(), cells[xIndex+1][yIndex].getXMagnitude(), abs((xRemainder <= .5 ? -1 : 0) + xRemainder));
+          float zX2 = lerp(cells[xIndex][yIndex+1].getXMagnitude(), cells[xIndex+1][yIndex+1].getXMagnitude(), abs((xRemainder <= .5 ? -1 : 0) + xRemainder));
           
-          float zY1 = lerp(cells[xIndex][yIndex].getYMagnitude(), cells[xIndex+1][yIndex].getYMagnitude(), xRemainder);
-          float zY2 = lerp(cells[xIndex][yIndex+1].getYMagnitude(), cells[xIndex+1][yIndex+1].getYMagnitude(), xRemainder);
-
+          float zY1 = lerp(cells[xIndex][yIndex].getYMagnitude(), cells[xIndex+1][yIndex].getYMagnitude(), abs((xRemainder <= .5 ? -1 : 0) + xRemainder));
+          float zY2 = lerp(cells[xIndex][yIndex+1].getYMagnitude(), cells[xIndex+1][yIndex+1].getYMagnitude(), abs((xRemainder <= .5 ? -1 : 0) + xRemainder));
+          
+          magXStorage[xRemainder <= .5 ? xIndex : xIndex+1][yRemainder <= .5 ? yIndex : yIndex+1] = lerp(zX1, zX2, abs((yRemainder <= .5 ? -1 : 0) + yRemainder));
+          magYStorage[xRemainder <= .5 ? xIndex : xIndex+1][yRemainder <= .5 ? yIndex : yIndex+1] = lerp(zY1, zY2, abs((yRemainder <= .5 ? -1 : 0) + yRemainder));
+          
+          
+          
+          
+          /*
           magXStorage[xIndex][yIndex] = lerp(zX1, zX2, yRemainder);
           magYStorage[xIndex][yIndex] = lerp(zY1, zY2, yRemainder);
+          
+          zX1 = lerp(cells[xIndex][yIndex].getXMagnitude(), cells[xIndex+1][yIndex].getXMagnitude(), 1-xRemainder);
+          zX2 = lerp(cells[xIndex][yIndex+1].getXMagnitude(), cells[xIndex+1][yIndex+1].getXMagnitude(), 1-xRemainder);
+          
+          zY1 = lerp(cells[xIndex][yIndex].getYMagnitude(), cells[xIndex+1][yIndex].getYMagnitude(), 1-xRemainder);
+          zY2 = lerp(cells[xIndex][yIndex+1].getYMagnitude(), cells[xIndex+1][yIndex+1].getYMagnitude(), 1-xRemainder);
+          
+          magXStorage[xIndex+1][yIndex] = lerp(zX1, zX2, yRemainder);
+          magYStorage[xIndex+1][yIndex] = lerp(zY1, zY2, yRemainder);
+          
+          zX1 = lerp(cells[xIndex][yIndex].getXMagnitude(), cells[xIndex+1][yIndex].getXMagnitude(), xRemainder);
+          zX2 = lerp(cells[xIndex][yIndex+1].getXMagnitude(), cells[xIndex+1][yIndex+1].getXMagnitude(), xRemainder);
+          
+          zY1 = lerp(cells[xIndex][yIndex].getYMagnitude(), cells[xIndex+1][yIndex].getYMagnitude(), xRemainder);
+          zY2 = lerp(cells[xIndex][yIndex+1].getYMagnitude(), cells[xIndex+1][yIndex+1].getYMagnitude(), xRemainder);
+          
+          magXStorage[xIndex][yIndex+1] = lerp(zX1, zX2, 1-yRemainder);
+          magYStorage[xIndex][yIndex+1] = lerp(zY1, zY2, 1-yRemainder);
+                    
+          zX1 = lerp(cells[xIndex][yIndex].getXMagnitude(), cells[xIndex+1][yIndex].getXMagnitude(), 1-xRemainder);
+          zX2 = lerp(cells[xIndex][yIndex+1].getXMagnitude(), cells[xIndex+1][yIndex+1].getXMagnitude(), 1-xRemainder);
+          
+          zY1 = lerp(cells[xIndex][yIndex].getYMagnitude(), cells[xIndex+1][yIndex].getYMagnitude(), 1-xRemainder);
+          zY2 = lerp(cells[xIndex][yIndex+1].getYMagnitude(), cells[xIndex+1][yIndex+1].getYMagnitude(), 1-xRemainder);                    
+                    
+          magXStorage[xIndex+1][yIndex+1] = lerp(zX1, zX2, 1-yRemainder);
+          magYStorage[xIndex+1][yIndex+1] = lerp(zY1, zY2, 1-yRemainder);
+          */
           
           if (xIndex > j && yIndex > i) {
             //cells[i][j].paintRed(true);
