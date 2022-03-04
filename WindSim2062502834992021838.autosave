@@ -1,0 +1,73 @@
+Grid g;
+Plane p;
+AsteroidBelt r;
+boolean die;
+float x1, y1, x2, y2, x3, y3, mode;
+Detection d = new Detection();
+float[][] poly = {{200,200,100,100,200,200,300,300,400,400,300,300}    //x points in plygon
+                 ,{200,300,300,400,400,500,500,400,400,300,300,200}}; //y points
+//theres probably a better way to do this ^
+polygon po;
+//sets the number of tiles in the grid
+//NOTE: the current code only supports square grids thus the single resolution variable
+static public final int resolution = 40;
+static public boolean mouseDown = false;
+
+void setup()
+{
+  mode = 0;
+  size(700, 700);
+  g = new Grid(new VPointer[resolution + 2][resolution + 2]);
+  p = new Plane(width/2, height/2, 40);
+  po = new polygon(poly, 250, 350);
+  r = new AsteroidBelt(20,52);
+  background(0);
+  g.update();
+}
+
+void draw()
+{ 
+  if (mode == 0){
+    background(255);
+    textSize(20);
+    fill(255,0,0);
+    text("welcome to game, press mouse to start!", 100,100); 
+    println("where text?");
+   if (mouseDown == true){
+    mode = 1; 
+   }
+  }
+  
+  if ( mode == 1){
+  
+  background(0);
+  g.update();
+  p.setAcceleratonX(g.sampleAccelerationsX(p.getXPos(), p.getYPos()) * .005);
+  p.setAccelerationY(g.sampleAccelerationsY(p.getXPos(), p.getYPos()) * .005);
+  p.update();
+  noStroke();
+  fill(0,0,0,105);
+  //po.display();
+  //po.update(p.xPos,p.yPos);
+   r.run(p.xPos,p.yPos);
+  if( die == true){
+   mode = 0; 
+    g = new Grid(new VPointer[resolution + 2][resolution + 2]);
+    p = new Plane(width/2, height/2, 40);
+    r = new AsteroidBelt(20,52);
+    die = false;
+  }
+  stroke(0);
+  strokeWeight(1);
+  }
+}
+
+void mousePressed()
+{
+  mouseDown = true;
+}
+
+void mouseReleased()
+{
+  mouseDown = false;
+}
